@@ -25,15 +25,16 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="NOVA AFF Project API",
+        title="Nova Aff API",
         default_version='v1',
-        description="API documentation for Project",
-        terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="contact@example.com"),
-        license=openapi.License(name="BSD License"),
+        description="Nova Aff Affiliate Marketing Platform API",
+        terms_of_service="https://novaaff.id.vn/terms/",
+        contact=openapi.Contact(email="support@novaaff.id.vn"),
+        license=openapi.License(name="Proprietary License"),
     ),
     public=True,
     permission_classes=[permissions.AllowAny],
+    url='https://novaaff.id.vn/api/',
 )
 
 urlpatterns = [

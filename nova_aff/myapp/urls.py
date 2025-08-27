@@ -11,7 +11,16 @@ from .views import (
     DataTrackingListView,
     DataTrackingDetailView,
     TrackingNumberListView,
-    TrackingNumberDetailView
+    TrackingNumberDetailView,
+    # Brand Analytics Views
+    BrandDashboardStatsView,
+    CreatorListView,
+    CreatorDetailView,
+    CreatorAnalyticsView,
+    VideoAnalyticsView,
+    LiveAnalyticsView,
+    FollowerDemographicsView,
+    TrendDataView
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -34,4 +43,14 @@ urlpatterns = [
     
     path('admin/projects/<int:project_id>/tracking-numbers/', TrackingNumberListView.as_view(), name='tracking_number_list'),
     path('admin/projects/<int:project_id>/tracking-numbers/<int:tracking_id>/', TrackingNumberDetailView.as_view(), name='tracking_number_detail'),
+    
+    # Brand Analytics API URLs
+    path('brand/dashboard/stats/', BrandDashboardStatsView.as_view(), name='brand_dashboard_stats'),
+    path('brand/creators/', CreatorListView.as_view(), name='creator_list'),
+    path('brand/creators/<int:creator_id>/', CreatorDetailView.as_view(), name='creator_detail'),
+    path('brand/creators/<int:creator_id>/analytics/', CreatorAnalyticsView.as_view(), name='creator_analytics'),
+    path('brand/creators/<int:creator_id>/video-analytics/', VideoAnalyticsView.as_view(), name='video_analytics'),
+    path('brand/creators/<int:creator_id>/live-analytics/', LiveAnalyticsView.as_view(), name='live_analytics'),
+    path('brand/creators/<int:creator_id>/demographics/', FollowerDemographicsView.as_view(), name='follower_demographics'),
+    path('brand/creators/<int:creator_id>/trends/', TrendDataView.as_view(), name='trend_data'),
 ]

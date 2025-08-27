@@ -25,8 +25,13 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-346w_iiyg)75v_!+#utfetcn54
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,103.56.162.68').split(',')
-
+# Allowed Hosts
+ALLOWED_HOSTS = [
+    'novaaff.id.vn',
+    'www.novaaff.id.vn',
+    'api.novaaff.id.vn',
+    '103.56.162.68',  # Your server IP
+]
 
 # Application definition
 
@@ -76,16 +81,25 @@ WSGI_APPLICATION = 'nova_aff.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# Use SQLite for development
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'novaaff'),
-        'USER': os.getenv('POSTGRES_USER', 'novauser'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', '@12345'),
-        'HOST': os.getenv('POSTGRES_HOST', '127.0.0.1'),
-        'PORT': os.getenv('POSTGRES_PORT', '5432'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# PostgreSQL configuration (commented for development)
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('POSTGRES_DB', 'novaaff'),
+#         'USER': os.getenv('POSTGRES_USER', 'novauser'),
+#         'PASSWORD': os.getenv('POSTGRES_PASSWORD', '@12345'),
+#         'HOST': os.getenv('POSTGRES_HOST', '127.0.0.1'),
+#         'PORT': os.getenv('POSTGRES_PORT', '5432'),
+#     }
+# }
 
 
 # Password validation
@@ -167,8 +181,29 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://103.56.162.68:8000",
     "http://103.56.162.68:5173",
+    "https://novaaff.id.vn",
+    "https://www.novaaff.id.vn",
+    "https://api.novaaff.id.vn",
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'x-timestamp',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-
+# CSRF Configuration
+CSRF_TRUSTED_ORIGINS = [
+    'https://novaaff.id.vn',
+    'https://www.novaaff.id.vn',
+    'https://api.novaaff.id.vn',
+]
 CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'True').lower() == 'true'  # Only for development

@@ -11,9 +11,24 @@ from .serializers import (
     ProjectSerializer,
     KOLSerializer,
     DataTrackingSerializer,
-    TrackingNumberSerializer
+    TrackingNumberSerializer,
+    # Brand Analytics Serializers
+    CreatorSerializer,
+    BrandDashboardStatsSerializer,
+    CreatorAnalyticsSerializer,
+    VideoAnalyticsSerializer,
+    LiveAnalyticsSerializer,
+    FollowerDemographicsSerializer,
+    TrendDataSerializer,
+    CreatorDetailSerializer
 )
-from .models import Project, KOL, DataTracking, TrackingNumber
+from .models import (
+    Project, KOL, DataTracking, TrackingNumber,
+    Creator, BrandDashboardStats, CreatorAnalytics, VideoAnalytics,
+    LiveAnalytics, FollowerDemographics, TrendData
+)
+from datetime import datetime, timedelta
+from django.utils import timezone
 # Create your views here.
 
 
@@ -327,3 +342,143 @@ class TrackingNumberDetailView(APIView):
             return Response({'message': 'Tracking number deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
         except TrackingNumber.DoesNotExist:
             return Response({'error': 'Tracking number not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+# Brand Analytics API Views
+class BrandDashboardStatsView(APIView):
+    """Get brand dashboard stats"""
+    permission_classes = [AllowAny]
+    
+    def get(self, request):
+        today = timezone.now().date()
+        try:
+            stats = BrandDashboardStats.objects.get(date=today)
+            serializer = BrandDashboardStatsSerializer(stats)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except BrandDashboardStats.DoesNotExist:
+            # Return default stats if none exist for today
+            default_stats = {
+                'date': today,
+                'clicks_today': 0,
+                'orders_today': 0,
+                'revenue_today': 0
+            }
+            return Response(default_stats, status=status.HTTP_200_OK)
+
+
+class CreatorListView(APIView):
+    """Get list of creators"""
+    permission_classes = [AllowAny]
+    
+    def get(self, request):
+        creators = Creator.objects.all()
+        serializer = CreatorSerializer(creators, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CreatorDetailView(APIView):
+    """Get detailed creator information with analytics"""
+    permission_classes = [AllowAny]
+    
+    def get(self, request, creator_id):
+        try:
+            creator = Creator.objects.get(id=creator_id)
+            serializer = CreatorDetailSerializer(creator)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Creator.DoesNotExist:
+            return Response({'error': 'Creator not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class CreatorAnalyticsView(APIView):
+    """Get creator analytics"""
+    permission_classes = [AllowAny]
+    
+    def get(self, request, creator_id):
+        try:
+            creator = Creator.objects.get(id=creator_id)
+            analytics = creator.analytics.all()
+            serializer = CreatorAnalyticsSerializer(analytics, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Creator.DoesNotExist:
+            return Response({'error': 'Creator not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class VideoAnalyticsView(APIView):
+    """Get video analytics for creator"""
+    permission_classes = [AllowAny]
+    
+    def get(self, request, creator_id):
+        try:
+            creator = Creator.objects.get(id=creator_id)
+            video_analytics = creator.video_analytics.all()
+            serializer = VideoAnalyticsSerializer(video_analytics, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Creator.DoesNotExist:
+            return Response({'error': 'Creator not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class LiveAnalyticsView(APIView):
+    """Get live analytics for creator"""
+    permission_classes = [AllowAny]
+    
+    def get(self, request, creator_id):
+        try:
+            creator = Creator.objects.get(id=creator_id)
+            live_analytics = creator.live_analytics.all()
+            serializer = LiveAnalyticsSerializer(live_analytics, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Creator.DoesNotExist:
+            return Response({'error': 'Creator not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class FollowerDemographicsView(APIView):
+    """Get follower demographics for creator"""
+    permission_classes = [AllowAny]
+    
+    def get(self, request, creator_id):
+        try:
+            creator = Creator.objects.get(id=creator_id)
+            demographics = creator.follower_demographics.all()
+            serializer = FollowerDemographicsSerializer(demographics, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Creator.DoesNotExist:
+            return Response({'error': 'Creator not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class TrendDataView(APIView):
+    """Get trend data for creator"""
+    permission_classes = [AllowAny]
+    
+    def get(self, request, creator_id):
+        try:
+            creator = Creator.objects.get(id=creator_id)
+            
+            # Get date range from query params
+            start_date = request.GET.get('start_date')
+            end_date = request.GET.get('end_date')
+            
+            trend_data = creator.trend_data.all()
+            
+            if start_date:
+                try:
+                    start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+                    trend_data = trend_data.filter(date__gte=start_date)
+                except ValueError:
+                    pass
+            
+            if end_date:
+                try:
+                    end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+                    trend_data = trend_data.filter(date__lte=end_date)
+                except ValueError:
+                    pass
+            
+            # Default to last 30 days if no date range specified
+            if not start_date and not end_date:
+                thirty_days_ago = timezone.now().date() - timedelta(days=30)
+                trend_data = trend_data.filter(date__gte=thirty_days_ago)
+            
+            serializer = TrendDataSerializer(trend_data, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Creator.DoesNotExist:
+            return Response({'error': 'Creator not found'}, status=status.HTTP_404_NOT_FOUND)

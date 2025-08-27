@@ -89,7 +89,6 @@ WSGI_APPLICATION = 'nova_aff.wsgi.application'
 #     }
 # }
 
-PostgreSQL configuration (commented for development)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
